@@ -1,0 +1,14 @@
+{
+    "name": "jankx/logger",
+    "description": "The log writer library the themes and plugins in WordPress",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Puleeno Nguyen",
+            "email": "puleeno@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}

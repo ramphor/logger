@@ -8,8 +8,10 @@ class ValidateDriver
         if (empty($args['path'])) {
             return false;
         }
-        if (!file_exists($args['path'])) {
-            mkdir($args['path'], 0755, true);
+
+        $dir = dirname($args['path']);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
         }
         return true;
     }

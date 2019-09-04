@@ -2,6 +2,8 @@
 namespace Jankx\Logger;
 
 use Jankx\Logger\ValidateDriver;
+use Jankx\Logger\Writers\FileWriter;
+use Jankx\Logger\Abstracts\LogWriter;
 
 class Logger
 {
@@ -29,7 +31,9 @@ class Logger
             switch ($driver) {
                 case 'file':
                     if (empty($args['path'])) {
-                        throw new Exception("The agrument `path` must be setted value for specify diretory store the log files.", 1);
+                        throw new Exception(
+                            'The agrument `path` must be setted value for specify diretory store the log files.'
+                        );
                     }
                     $logger = new self($driver);
                     $logger->setArgs($args);
@@ -53,56 +57,40 @@ class Logger
     {
         $validateCb = array(ValidateDriver::class, $this->driver);
         if (is_callable($validateCb) && call_user_func($validateCb, $args)) {
-            $this->args = array_merge(
-                array(
-                    'format' => '[%d][%T]%m',
-                    'max_log_file_size' => '10M',
-                ),
-                $args
-            );
+            $this->args = $args;
         } else {
             throw new \Error(sprintf('The args is invalid for %s driver.', $this->driver));
         }
     }
 
-    public function createMessage($message, $type, $date = null)
+    public function writters()
     {
-        if (preg_match_all('/\%\w/', $this->args['format'], $matches)) {
-            $ret = $this->args['format'];
-            foreach ($matches[0] as $t) {
-                switch ($t) {
-                    case '%t':
-                        $ret = str_replace($t, $type, $ret);
-                        break;
-                    case '%T':
-                        $ret = str_replace($t, strtoupper($type), $ret);
-                        break;
-                    case '%d':
-                        $ret = str_replace($t, $date, $ret);
-                        break;
-                    case '%m':
-                        $ret = str_replace($t, $message, $ret);
-                        break;
-                }
-            }
-        } else {
-            $ret = $message;
-        }
-
-        return $ret;
+        return apply_filters('jankx_logger_writters', array(
+            'file' => FileWriter::class,
+        ));
     }
 
-    public function write($message, $type = 'info', $file = 'logs.log')
+    public function getWriter($driver)
     {
-        $message = $this->createMessage($message, $type, date('Y-m-d H:i:s'));
-        $logPath = sprintf('%s/%s', $this->args['path'], $file);
-        $h = fopen($logPath, 'w+');
-        if (!$h) {
-            throw new \Exception(sprintf('Can not open file %s to write log', $logPath));
+        $writters = $this->writters();
+        if (isset($writters[$driver])) {
+            return $writters[$driver];
+        } else {
+            throw new \Exception(
+                sprintf('The writter %s is not supported', $driver)
+            );
         }
-        if (!fwrite($h, $message)) {
-            throw new \Exception('Jankx Logger error occur when write log.');
+    }
+
+    public function write($message, $type = 'info')
+    {
+        $writer_class = $this->getWriter($this->driver);
+        $writer = new $writer_class($message, $type, $this->args);
+        if (!($writer instanceof LogWriter)) {
+            throw new \Exception(
+                sprintf('The log writer must be instance of %s', LogWriter::class)
+			);
         }
-        fclose($h);
+        $writer->write();
     }
 }

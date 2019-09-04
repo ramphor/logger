@@ -20,19 +20,108 @@ class FileWriter extends LogWriter
         $args = array_merge(
             array(
                 'format' => '[%d][%T]%m',
-                'max_log_file_size' => '10M',
+                'max_log_file_size' => '1M',
+                'suffix_file_name_format' => 'date', // `sequence` count same file names.
             ),
             $args
         );
+
         $this->path = $args['path'];
         $this->messageFormat = $args['format'];
+        $this->suffixFileNameFormat = $args['suffix_file_name_format'];
         $this->maxLogFileSize = $this->convertSizeFromTextToBytes($args['max_log_file_size']);
-        $this->hWriter = fopen($this->path, 'a');
+
+        $this->initHooks();
+        $this->verifyLogFileSizes();
+        $this->openLogFile();
     }
 
     public function __destruct()
     {
-        fclose($this->hWriter);
+        if ($this->hWriter) {
+            fclose($this->hWriter);
+        }
+    }
+
+    public function initHooks()
+    {
+        add_filter('jankx_logger_backup_file', array($this, 'validate_backup_files'), 10, 4);
+    }
+
+    protected function verifyLogFileSizes()
+    {
+        if (!file_exists($this->path)) {
+            return;
+        }
+        $filesize = filesize($this->path);
+        if ($filesize > $this->maxLogFileSize) {
+            $this->backupLogFile($this->path);
+        }
+    }
+
+    protected function openLogFile()
+    {
+        $this->hWriter = fopen($this->path, 'a');
+    }
+
+    protected function isSupportGzip()
+    {
+    }
+
+    public function validate_backup_files($backupFile, $backupFileName, $suffix, $ext, $index = 1)
+    {
+        if (!file_exists($backupFile)) {
+            return $backupFile;
+        }
+        if (is_numeric(strpos($suffix, '-'))) {
+            $suffix = $suffix . '-1';
+        } else {
+            $suffix = '.' . $index;
+        }
+
+        return $this->validate_backup_files(
+            sprintf('%s%s.%s', $backupFileName, $suffix, $ext),
+            $backupFileName,
+            $suffix,
+            $ext,
+            $index + 1
+        );
+    }
+
+    protected function backupLogFile($logFile)
+    {
+        $ext = pathinfo($logFile, PATHINFO_EXTENSION);
+        $backupFileName = str_replace('.' . $ext, '', $logFile);
+
+        if ($this->isSupportGzip()) {
+            $ext = 'gz';
+        }
+        if ($this->suffixFileNameFormat !== 'sequence') {
+            $suffix = '-' . date('YmdHis');
+        } else {
+            $searchSameBackupLogs = glob(sprintf('%s*.%s', $backupFileName, $ext));
+            $totalFiles = count($searchSameBackupLogs);
+            if ($totalFiles> 0) {
+                $suffix = '.' . $totalFiles;
+            } else {
+                $suffix = '';
+            }
+            unset($searchSameBackupLogs);
+        }
+
+        $backupFile = apply_filters(
+            'jankx_logger_backup_file',
+            sprintf('%s%s.%s', $backupFileName, $suffix, $ext),
+            $backupFileName,
+            $suffix,
+            $ext,
+            $this->suffixFileNameFormat
+        );
+
+        if ($ext === 'gz') {
+        } else {
+            rename($logFile, $backupFile);
+        }
     }
 
     protected function createMessage($message, $type, $messageFormat, $date = null)
@@ -62,9 +151,25 @@ class FileWriter extends LogWriter
         return $ret . PHP_EOL;
     }
 
-    public function convertSizeFromTextToBytes($values)
+    public function convertSizeFromTextToBytes($value)
     {
-        return $values;
+        return preg_replace_callback(
+            '/^\s*(\d+)\s*(?:([kmgt]?)b?)?\s*$/i',
+            function ($m) {
+                switch (strtolower($m[2])) {
+                    case 't':
+                        $m[1] *= 1024;
+                    case 'g':
+                        $m[1] *= 1024;
+                    case 'm':
+                        $m[1] *= 1024;
+                    case 'k':
+                        $m[1] *= 1024;
+                }
+                return $m[1];
+            },
+            $value
+        );
     }
 
     public function write()

@@ -16,7 +16,7 @@
             "Jankx\\Logger\\": "src/"
         },
         "files": [
-            "./helpers.php"
+            "helpers.php"
         ]
     }
 }

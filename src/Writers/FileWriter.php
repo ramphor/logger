@@ -27,7 +27,7 @@ class FileWriter extends LogWriter
 		$this->path = $args['path'];
 		$this->messageFormat = $args['format'];
 		$this->maxLogFileSize = $this->convertSizeFromTextToBytes($args['max_log_file_size']);
-		$this->hWriter = fopen($this->path, 'w+');
+		$this->hWriter = fopen($this->path, 'a');
 	}
 
 	public function __destruct() {

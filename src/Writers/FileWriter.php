@@ -20,7 +20,7 @@ class FileWriter extends LogWriter
         $args = array_merge(
             array(
                 'format' => '[%d][%T]%m',
-                'max_log_file_size' => '1M',
+                'max_log_file_size' => '10M',
                 'suffix_file_name_format' => 'date', // `sequence` count same file names.
             ),
             $args

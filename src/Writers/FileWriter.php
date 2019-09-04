@@ -58,7 +58,7 @@ class FileWriter extends LogWriter
             $ret = $message;
         }
 
-        return $ret;
+        return $ret . PHP_EOL;
 	}
 
 	public function convertSizeFromTextToBytes($values) {

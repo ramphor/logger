@@ -1,5 +1,5 @@
 <?php
-namespace Jankx\Logger;
+namespace Jankx\Logger\Interfaces;
 
 interface LogWriter
 {

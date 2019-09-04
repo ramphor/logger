@@ -1,9 +1,9 @@
 <?php
 namespace Jankx\Logger\Writers;
 
-use Jankx\Logger\Abstracts\LogWritter;
+use Jankx\Logger\Abstracts\LogWriter;
 
-class FileWriter extends LogWritter
+class FileWriter extends LogWriter
 {
 	protected $message;
 	protected $type;
@@ -34,10 +34,10 @@ class FileWriter extends LogWritter
 		fclose($this->hWriter);
 	}
 
-    public function createMessage($message, $type, $date = null)
+    public function createMessage($message, $type, $messageFormat, $date = null)
     {
-        if (preg_match_all('/\%\w/', $this->args['format'], $matches)) {
-            $ret = $this->args['format'];
+        if (preg_match_all('/\%\w/', $messageFormat, $matches)) {
+            $ret = $messageFormat;
             foreach ($matches[0] as $t) {
                 switch ($t) {
                     case '%t':
@@ -67,7 +67,7 @@ class FileWriter extends LogWritter
 
     public function write()
     {
-        $message = $this->createMessage($message, $type, date('Y-m-d H:i:s'));
+        $message = $this->createMessage($this->message, $this->type, $this->messageFormat, date('Y-m-d H:i:s'));
         if (!$this->hWriter) {
             throw new \Exception(sprintf('Can not open file %s to write log', $logPath));
         }

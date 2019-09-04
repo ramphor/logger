@@ -5,36 +5,37 @@ use Jankx\Logger\Abstracts\LogWriter;
 
 class FileWriter extends LogWriter
 {
-	protected $message;
-	protected $type;
-	protected $path;
-	protected $messageFormat;
-	protected $maxLogFileSize;
-	protected $hWriter;
+    protected $message;
+    protected $type;
+    protected $path;
+    protected $messageFormat;
+    protected $maxLogFileSize;
+    protected $hWriter;
 
-	public function __construct($message, $type, $args)
+    public function __construct($message, $type, $args)
     {
-		$this->message = $message;
-		$this->type = $type;
+        $this->message = $message;
+        $this->type = $type;
 
-		$args = array_merge(
-			array(
-				'format' => '[%d][%T]%m',
-				'max_log_file_size' => '10M',
-			),
-			$args
-		);
-		$this->path = $args['path'];
-		$this->messageFormat = $args['format'];
-		$this->maxLogFileSize = $this->convertSizeFromTextToBytes($args['max_log_file_size']);
-		$this->hWriter = fopen($this->path, 'a');
-	}
+        $args = array_merge(
+            array(
+                'format' => '[%d][%T]%m',
+                'max_log_file_size' => '10M',
+            ),
+            $args
+        );
+        $this->path = $args['path'];
+        $this->messageFormat = $args['format'];
+        $this->maxLogFileSize = $this->convertSizeFromTextToBytes($args['max_log_file_size']);
+        $this->hWriter = fopen($this->path, 'a');
+    }
 
-	public function __destruct() {
-		fclose($this->hWriter);
-	}
+    public function __destruct()
+    {
+        fclose($this->hWriter);
+    }
 
-    public function createMessage($message, $type, $messageFormat, $date = null)
+    protected function createMessage($message, $type, $messageFormat, $date = null)
     {
         if (preg_match_all('/\%\w/', $messageFormat, $matches)) {
             $ret = $messageFormat;
@@ -59,11 +60,12 @@ class FileWriter extends LogWriter
         }
 
         return $ret . PHP_EOL;
-	}
+    }
 
-	public function convertSizeFromTextToBytes($values) {
-		return $values;
-	}
+    public function convertSizeFromTextToBytes($values)
+    {
+        return $values;
+    }
 
     public function write()
     {
@@ -74,6 +76,5 @@ class FileWriter extends LogWriter
         if (!fwrite($this->hWriter, $message)) {
             throw new \Exception('Jankx Logger error occur when write log.');
         }
-	}
-
+    }
 }

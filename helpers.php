@@ -1,5 +1,5 @@
 <?php
 
-function write_log() {
-
+function write_log()
+{
 }

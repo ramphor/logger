@@ -89,7 +89,7 @@ class Logger
         if (!($writer instanceof LogWriter)) {
             throw new \Exception(
                 sprintf('The log writer must be instance of %s', LogWriter::class)
-			);
+            );
         }
         $writer->write();
     }

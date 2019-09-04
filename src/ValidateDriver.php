@@ -5,6 +5,12 @@ class ValidateDriver
 {
     public static function file($args)
     {
-        return !empty($args['path']);
+        if (empty($args['path'])) {
+            return false;
+        }
+        if (!file_exists($args['path'])) {
+            mkdir($args['path'], 0755, true);
+        }
+        return true;
     }
 }

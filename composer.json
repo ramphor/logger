@@ -14,6 +14,9 @@
     "autoload": {
         "psr-4": {
             "Jankx\\Logger\\": "src/"
-        }
+        },
+        "files": [
+            "./helpers.php"
+        ]
     }
 }

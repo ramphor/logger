@@ -1,6 +1,6 @@
 {
-    "name": "jankx/logger",
-    "description": "The log writer library the themes and plugins in WordPress",
+    "name": "ramphor/logger",
+    "description": "Wrap the Monolog library for themes and plugins in WordPress",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -13,7 +13,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Jankx\\Logger\\": "src/"
+            "Ramphor\\Logger\\": "src/"
         },
         "files": [
             "helpers.php"

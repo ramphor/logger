@@ -10,13 +10,15 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "psr/log": "1.1.3"
+    },
     "autoload": {
+        "files": [
+            "thirdparty/autoload.php"
+        ],
         "psr-4": {
             "Ramphor\\Logger\\": "src/"
-        },
-        "files": [
-            "helpers.php"
-        ]
+        }
     }
 }

@@ -3,6 +3,7 @@
     "description": "Wrap the Monolog library for themes and plugins in WordPress",
     "type": "library",
     "license": "MIT",
+    "version": "0.2.0",
     "authors": [
         {
             "name": "Puleeno Nguyen",
@@ -15,7 +16,10 @@
     },
     "autoload": {
         "files": [
-            "src/autoload.php"
-        ]
+            "includes/autoload.php"
+        ],
+        "psr-4": {
+            "Ramphor\\Logger\\": "src"
+        }
     }
 }

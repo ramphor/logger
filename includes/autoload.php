@@ -29,7 +29,7 @@ class ClassLoader
         self::setMonologDir($monologDir);
 
         spl_autoload_register(
-            array(RamphorLoggerMonologAutoload::class, 'loadMonologClass'),
+            array(ClassLoader::class, 'loadMonologClass'),
             true,
             true
         );

@@ -16,7 +16,7 @@ if ( file_exists( $composer_file ) ) {
 	require_once $composer_file;
 }
 
-if ( ! class_exist( Ramphor\Logger::class ) ) {
+if ( ! class_exists( \Ramphor\Logger::class ) ) {
 	return error_log( 'Ramphor\Logger class is not exists to setup custom logger' );
 }
 

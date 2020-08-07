@@ -9,6 +9,8 @@
  * Tags: logger
  */
 
+use Ramphor\Logger\Logger;
+
 define( 'RAMPHOR_LOGGER_PLUGIN_FILE', __FILE__ );
 
 $composer_file = sprintf( '%s/vendor/autoload.php', dirname( __FILE__ ) );
@@ -16,10 +18,15 @@ if ( file_exists( $composer_file ) ) {
 	require_once $composer_file;
 }
 
-if ( ! class_exists( \Ramphor\Logger::class ) ) {
-	return error_log( 'Ramphor\Logger class is not exists to setup custom logger' );
+if ( ! class_exists( Logger::class ) ) {
+	return error_log( sprintf( 'The class %s is not found to register custom logger', Logger::class ) );
 }
 
-function ramphor_logger( int $errno, string $errstr, string $errfile, int $errline ) {
+if ( ! function_exists( 'ramphor_logger' ) ) {
+	function ramphor_logger() {
+		return Logger::instance();
+	}
 }
-set_error_handler( 'ramphor_logger' );
+
+$GLOBALS['ramphor_logger'] = ramphor_logger();
+

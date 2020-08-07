@@ -1,8 +1,18 @@
 <?php
 namespace Ramphor\Logger;
 
-if (!class_exists(Logger::class)) {
-    class Logger
+final class Logger
+{
+    protected static $instance;
+
+    protected static function instance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new static();
+        }
+    }
+
+    private function __construct()
     {
     }
 }

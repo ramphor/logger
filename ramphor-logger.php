@@ -5,13 +5,11 @@
  * Author: Ramphor Premium
  * Author URI: https://puleeno.com
  * Version: 0.2.0
- * Description: Wrap the Monolog library for themes and plugins in WordPress
- * Tags: logger
+ * Description: The logger library for themes, plugins in WordPress and tracking all errors of PHP/WordPress
+ * Tags: logger, monitor, errors
  */
 
 use Ramphor\Logger\Logger;
-
-define( 'RAMPHOR_LOGGER_PLUGIN_FILE', __FILE__ );
 
 $composer_file = sprintf( '%s/vendor/autoload.php', dirname( __FILE__ ) );
 if ( file_exists( $composer_file ) ) {
@@ -22,11 +20,33 @@ if ( ! class_exists( Logger::class ) ) {
 	return error_log( sprintf( 'The class %s is not found to register custom logger', Logger::class ) );
 }
 
-if ( ! function_exists( 'ramphor_logger' ) ) {
-	function ramphor_logger() {
-		return Logger::instance();
+function load_ramphor_logger_firstly() {
+	$me = substr(
+		RAMPHOR_LOGGER_PLUGIN_FILE,
+		strlen( RAMPHOR_LOGGER_PLUGIN_FILE ) - 33
+	);
+
+	// Set me at first index
+	if ( $plugins = get_option( 'active_plugins' ) ) {
+		if ( $key = array_search( $path, $plugins ) ) {
+			array_splice( $plugins, $key, 1 );
+			array_unshift( $plugins, $path );
+			update_option( 'active_plugins', $plugins );
+		}
 	}
 }
+add_action( 'activated_plugin', 'load_ramphor_logger_firstly', 100 );
 
-$GLOBALS['ramphor_logger'] = ramphor_logger();
+function ramphor_logger_exception_trigger( $e ) {
+	$message = sprintf(
+		"%s\n%s",
+		$e->getMessage(),
+		$e->getTraceAsString()
+	);
+	$logger = Logger::instance();
+	$logger->error($message);
+}
+set_exception_handler( 'ramphor_logger_exception_trigger' );
 
+// Init the Ramphor Logger instance
+add_action( 'loaded_plugins', array(Logger::class, 'instance') );

@@ -64,7 +64,7 @@ final class Logger
 
     public function registerDefaultLogger()
     {
-        $syslog  = sprintf('%s/%s.log', WP_CONTENT_DIR, static::LOGGER_ID);
+        $syslog  = sprintf('%s/messages.log', WP_CONTENT_DIR);
         $handler = new StreamHandler($syslog, Monolog::DEBUG);
 
         // Setup Monolog as default logger

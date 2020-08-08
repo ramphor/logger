@@ -74,17 +74,17 @@ final class Logger
         $this->addLogger(static::LOGGER_ID, $log);
     }
 
-    public function addLogger($id, $logger)
+    public function addLogger($id, &$logger)
     {
         if (!$logger instanceof LoggerInterface) {
             $this->get(static::LOGGER_ID)->warning('The logger must be follow psr/log');
             return;
         }
         if (!isset(static::$loggers[$id])) {
-            static::$loggers[$id] =& $logger;
+            static::$loggers[$id] = $logger;
         } else {
             $this->get(static::LOGGER_ID)->warning(sprintf('The logger "%s" is already exists', $id));
         }
-        do_action_ref_array('ramphor_logger_add_logger', [&$logger, $id]);
+        do_action('ramphor_logger_add_logger', $logger, $id);
     }
 }

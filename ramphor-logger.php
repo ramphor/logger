@@ -43,10 +43,12 @@ function ramphor_logger_exception_trigger( $e ) {
 		$e->getMessage(),
 		$e->getTraceAsString()
 	);
-	$logger = Logger::instance();
-	$logger->error($message);
+	$logger  = Logger::instance();
+	$logger->get()->error( $message );
+
+	_e( 'Your website has errors. Please contact to webadmin or your developer to get more informations', 'ramphor_logger' );
 }
 set_exception_handler( 'ramphor_logger_exception_trigger' );
 
 // Init the Ramphor Logger instance
-add_action( 'loaded_plugins', array(Logger::class, 'instance') );
+add_action( 'loaded_plugins', array( Logger::class, 'instance' ) );

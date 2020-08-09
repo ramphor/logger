@@ -50,5 +50,12 @@ function ramphor_logger_exception_trigger( $e ) {
 }
 set_exception_handler( 'ramphor_logger_exception_trigger' );
 
+function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext ) {
+	$message = sprintf( '%s in %s line %s', $errstr, $errfile, $errline );
+	$logger  = Logger::instance();
+	$logger->get()->warning( $message );
+}
+set_error_handler( 'ramphor_logger_error_trigger' );
+
 // Init the Ramphor Logger instance
 add_action( 'loaded_plugins', array( Logger::class, 'instance' ) );

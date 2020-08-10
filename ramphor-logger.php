@@ -21,9 +21,9 @@ if ( ! class_exists( Logger::class ) ) {
 }
 
 function load_ramphor_logger_firstly() {
-	$me = substr(
-		RAMPHOR_LOGGER_PLUGIN_FILE,
-		strlen( RAMPHOR_LOGGER_PLUGIN_FILE ) - 33
+	$path = substr(
+		__FILE__,
+		strlen( __FILE__ ) - 33
 	);
 
 	// Set me at first index
@@ -51,8 +51,12 @@ function ramphor_logger_exception_trigger( $e ) {
 set_exception_handler( 'ramphor_logger_exception_trigger' );
 
 function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext ) {
-	$message = sprintf( '%s in %s line %s', $errstr, $errfile, $errline );
-	$logger  = Logger::instance();
+	ob_start();
+	debug_print_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+	$backtrace = ob_get_clean();
+	$message   = sprintf( "%s in %s line %s\n%s", $errstr, $errfile, $errline, $backtrace );
+	$logger    = Logger::instance();
+
 	$logger->get()->warning( $message );
 }
 set_error_handler( 'ramphor_logger_error_trigger' );

@@ -50,7 +50,7 @@ function ramphor_logger_exception_trigger( $e ) {
 }
 set_exception_handler( 'ramphor_logger_exception_trigger' );
 
-function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext ) {
+function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext = array() ) {
 	ob_start();
 	debug_print_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 	$backtrace = ob_get_clean();

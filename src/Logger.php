@@ -64,8 +64,11 @@ final class Logger
 
     public function registerDefaultLogger()
     {
-        $syslog  = sprintf('%s/messages.log', WP_CONTENT_DIR);
-        $handler = new StreamHandler($syslog, Monolog::DEBUG);
+        $syslog  = sprintf('%s/logs.log', WP_CONTENT_DIR);
+        $handler = new StreamHandler(
+            apply_filters('ramphor_logger_default_stream_path', $syslog),
+            Monolog::DEBUG
+        );
 
         // Setup Monolog as default logger
         $log = new Monolog(strtoupper(static::LOGGER_ID));

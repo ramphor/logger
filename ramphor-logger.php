@@ -10,6 +10,7 @@
  */
 
 use Ramphor\Logger\Logger;
+use Monolog\Handler\SlackHandler;
 
 $composer_file = sprintf( '%s/vendor/autoload.php', dirname( __FILE__ ) );
 if ( file_exists( $composer_file ) ) {
@@ -60,6 +61,22 @@ function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $err
 	$logger->get()->warning( $message );
 }
 set_error_handler( 'ramphor_logger_error_trigger' );
+
+function ramphor_logger_register_logger( $logger, $id ) {
+	if ( ! constant( 'RAMPHOR_LOGGER_SLACK_HANDLER_ENABLE' ) ) {
+		return;
+	}
+	$token   = constant( 'RAMPHOR_LOGGER_SLACK_TOKEN' );
+	$channel = constant( 'RAMPHOR_LOGGER_SLACK_CHANNEL' );
+	$botname = constant( 'RAMPHOR_LOGGER_SLACK_BOT_NAME' );
+
+	if ( isset( $token, $channel ) ) {
+		$slackHandler = new SlackHandler( $token, $channel, $botname );
+		$slackHandler->setLevel( apply_filters( 'ramphor_logger_slack_handler_log_level', $logger::NOTICE ) );
+		$logger->pushHandler( $slackHandler );
+	}
+}
+add_action( 'ramphor_logger_register_logger', 'ramphor_logger_register_logger', 10, 2 );
 
 // Init the Ramphor Logger instance
 add_action( 'loaded_plugins', array( Logger::class, 'instance' ) );

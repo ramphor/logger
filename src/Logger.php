@@ -71,10 +71,10 @@ final class Logger
         $log = new Monolog(strtoupper(static::LOGGER_ID));
         $log->pushHandler($handler);
 
-        $this->addLogger(static::LOGGER_ID, $log);
+        $this->registerLogger(static::LOGGER_ID, $log);
     }
 
-    public function addLogger($id, &$logger)
+    public function registerLogger($id, &$logger)
     {
         if (!$logger instanceof LoggerInterface) {
             $this->get(static::LOGGER_ID)->warning('The logger must be follow psr/log');
@@ -85,6 +85,6 @@ final class Logger
         } else {
             $this->get(static::LOGGER_ID)->warning(sprintf('The logger "%s" is already exists', $id));
         }
-        do_action('ramphor_logger_add_logger', $logger, $id);
+        do_action_ref_array('ramphor_logger_register_logger', array(&$logger, $id));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Ramphor\Logger;
 
+use Throwable;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger as Monolog;
 use Monolog\Handler\StreamHandler;
@@ -32,10 +33,16 @@ final class Logger
     public function __call($name, $args)
     {
         $logger = $this->getLogger($this->id);
-        return call_user_func_array(
-            array($logger, $name),
-            $args
-        );
+        try {
+            return call_user_func_array(
+                array($logger, $name),
+                $args
+            );
+        } catch (Throwable $e) {
+            $error_handler = @fopen('php://stderr', 'w');
+            @fwrite($error_handler, $e->getMessage());
+            @fclose($error_handler);
+        }
     }
 
     public function get($id = null)

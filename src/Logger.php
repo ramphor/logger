@@ -57,10 +57,10 @@ final class Logger
         return $this;
     }
 
-    public function getLogger($id)
+    public function getLogger($id = null)
     {
         if (is_null($id)) {
-            $id = static::LOGGER_ID;
+            $id = $this->id ? $this->id : static::LOGGER_ID;
         }
 
         if (isset(static::$loggers[$id])) {

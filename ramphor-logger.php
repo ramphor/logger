@@ -52,6 +52,19 @@ function ramphor_logger_exception_trigger( $e ) {
 set_exception_handler( 'ramphor_logger_exception_trigger' );
 
 function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext = array() ) {
+	$ignore_wp_core = apply_filters(
+		'ramphor_logger_ignore_wordpress_core_warning',
+		true
+	);
+	$errdir         = preg_replace(
+		'/([^\/]+)(.+)?/',
+		'$1',
+		str_replace( ABSPATH, '', $errfile )
+	);
+	if ( $ignore_wp_core && in_array( $errdir, array( 'wp-includes', 'wp-admin' ) ) ) {
+		return;
+	}
+
 	ob_start();
 	debug_print_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
 	$backtrace = ob_get_clean();
@@ -72,7 +85,12 @@ function ramphor_logger_register_logger( $logger, $id ) {
 
 	if ( isset( $token, $channel ) ) {
 		$slackHandler = new SlackHandler( $token, $channel, $botname );
-		$slackHandler->setLevel( apply_filters( 'ramphor_logger_slack_handler_log_level', $logger::NOTICE ) );
+		$slackHandler->setLevel(
+			apply_filters(
+				'ramphor_logger_slack_handler_log_level',
+				$logger::NOTICE
+			)
+		);
 		$logger->pushHandler( $slackHandler );
 	}
 }

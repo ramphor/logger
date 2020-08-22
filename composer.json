@@ -1,6 +1,6 @@
 {
     "name": "ramphor/logger",
-    "description": "Wrap the Monolog library for themes and plugins in WordPress",
+    "description": "Wrap the Monolog library for WordPress themes and plugins",
     "type": "library",
     "license": "MIT",
     "version": "0.2.0",

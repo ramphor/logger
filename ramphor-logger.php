@@ -71,7 +71,12 @@ function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $err
 	$message   = sprintf( "%s in %s line %s\n%s", $errstr, $errfile, $errline, $backtrace );
 	$logger    = Logger::instance();
 
-	$logger->get()->notice( $message );
+	$user_error_log_level = get_option( 'user_error_log_level', 'warning' );
+	if ( is_callable( array( $logger->getLogger(), $user_error_log_level ) ) ) {
+		$logger->$user_error_log_level( $message );
+	} else {
+		$logger->warning( $message );
+	}
 }
 set_error_handler( 'ramphor_logger_error_trigger' );
 
@@ -84,11 +89,28 @@ function ramphor_logger_register_logger( $logger, $id ) {
 	$botname = constant( 'RAMPHOR_LOGGER_SLACK_BOT_NAME' );
 
 	if ( isset( $token, $channel ) ) {
-		$slackHandler = new SlackHandler( $token, $channel, $botname );
+		$slackHandler  = new SlackHandler( $token, $channel, $botname );
+		$monitor_level = get_option( 'ramphor_logger_slack_at_level', $logger::NOTICE );
+		$log_level     = $logger::NOTICE;
+		if ( in_array(
+			$monitor_level,
+			array(
+				$logger::DEBUG,
+				$logger::INFO,
+				$logger::NOTICE,
+				$logger::WARNING,
+				$logger::ERROR,
+				$logger::CRITICAL,
+				$logger::ALERT,
+				$logger::EMERGENCY,
+			)
+		) ) {
+			$log_level = $logger::NOTICE;
+		}
 		$slackHandler->setLevel(
 			apply_filters(
 				'ramphor_logger_slack_handler_log_level',
-				$logger::NOTICE
+				$log_level
 			)
 		);
 		$logger->pushHandler( $slackHandler );

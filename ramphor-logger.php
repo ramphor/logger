@@ -71,7 +71,7 @@ function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $err
 	$message   = sprintf( "%s in %s line %s\n%s", $errstr, $errfile, $errline, $backtrace );
 	$logger    = Logger::instance();
 
-	$logger->get()->warning( $message );
+	$logger->get()->notice( $message );
 }
 set_error_handler( 'ramphor_logger_error_trigger' );
 

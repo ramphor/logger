@@ -81,12 +81,12 @@ function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $err
 set_error_handler( 'ramphor_logger_error_trigger' );
 
 function ramphor_logger_register_logger( $logger, $id ) {
-	if ( ! constant( 'RAMPHOR_LOGGER_SLACK_HANDLER_ENABLE' ) ) {
+	if ( ! defined( 'RAMPHOR_LOGGER_SLACK_HANDLER_ENABLE' ) ) {
 		return;
 	}
-	$token   = constant( 'RAMPHOR_LOGGER_SLACK_TOKEN' );
-	$channel = constant( 'RAMPHOR_LOGGER_SLACK_CHANNEL' );
-	$botname = constant( 'RAMPHOR_LOGGER_SLACK_BOT_NAME' );
+	$token   = defined( 'RAMPHOR_LOGGER_SLACK_TOKEN' ) ? constant( 'RAMPHOR_LOGGER_SLACK_TOKEN' ) : '';
+	$channel = defined( 'RAMPHOR_LOGGER_SLACK_CHANNEL' ) ? constant( 'RAMPHOR_LOGGER_SLACK_CHANNEL' ) : '';
+	$botname = defined( 'RAMPHOR_LOGGER_SLACK_BOT_NAME' ) ? constant( 'RAMPHOR_LOGGER_SLACK_BOT_NAME' ) : '';
 
 	if ( isset( $token, $channel ) ) {
 		$slackHandler  = new SlackHandler( $token, $channel, $botname );

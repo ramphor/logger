@@ -90,8 +90,8 @@ function ramphor_logger_register_logger( $logger, $id ) {
 
 	if ( isset( $token, $channel ) ) {
 		$slackHandler  = new SlackHandler( $token, $channel, $botname );
-		$monitor_level = defined('RAMPHOR_LOGGER_LOG_LEVEL')
-			? RAMPHOR_LOGGER_LOG_LEVEL
+		$monitor_level = defined('RAMPHOR_LOGGER_SLACK_LOG_LEVEL')
+			? RAMPHOR_LOGGER_SLACK_LOG_LEVEL
 			: get_option( 'ramphor_logger_slack_at_level', $logger::NOTICE );
 
 		$log_level     = $logger::NOTICE;

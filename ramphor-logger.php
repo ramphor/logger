@@ -39,47 +39,49 @@ if (!class_exists(\WP_CLI::class)) {
 	}
 	add_action( 'activated_plugin', 'load_ramphor_logger_firstly', 100 );
 
-	function ramphor_logger_exception_trigger( $e ) {
-		$message = sprintf(
-			"%s\n%s",
-			$e->getMessage(),
-			$e->getTraceAsString()
-		);
-		$logger  = Logger::instance();
-		$logger->get()->error( $message );
+	if (!defined('RAMPHOR_LOGGER_DISABLE_EXCEPTION_TRIGGER') || constant('RAMPHOR_LOGGER_DISABLE_EXCEPTION_TRIGGER') === false) {
+		function ramphor_logger_exception_trigger( $e ) {
+			$message = sprintf(
+				"%s\n%s",
+				$e->getMessage(),
+				$e->getTraceAsString()
+			);
+			$logger  = Logger::instance();
+			$logger->get()->error( $message );
 
-		_e( 'Your website has errors. Please contact to webadmin or your developer to get more informations', 'ramphor_logger' );
-	}
-	set_exception_handler( 'ramphor_logger_exception_trigger' );
-
-	function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext = array() ) {
-		$ignore_wp_core = apply_filters(
-			'ramphor_logger_ignore_wordpress_core_warning',
-			true
-		);
-		$errdir         = preg_replace(
-			'/([^\/]+)(.+)?/',
-			'$1',
-			str_replace( ABSPATH, '', $errfile )
-		);
-		if ( $ignore_wp_core && in_array( $errdir, array( 'wp-includes', 'wp-admin' ) ) ) {
-			return;
+			_e( 'Your website has errors. Please contact to webadmin or your developer to get more informations', 'ramphor_logger' );
 		}
+		set_exception_handler( 'ramphor_logger_exception_trigger' );
 
-		ob_start();
-		debug_print_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
-		$backtrace = ob_get_clean();
-		$message   = sprintf( "%s in %s line %s\n%s", $errstr, $errfile, $errline, $backtrace );
-		$logger    = Logger::instance();
+		function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext = array() ) {
+			$ignore_wp_core = apply_filters(
+				'ramphor_logger_ignore_wordpress_core_warning',
+				true
+			);
+			$errdir         = preg_replace(
+				'/([^\/]+)(.+)?/',
+				'$1',
+				str_replace( ABSPATH, '', $errfile )
+			);
+			if ( $ignore_wp_core && in_array( $errdir, array( 'wp-includes', 'wp-admin' ) ) ) {
+				return;
+			}
 
-		$user_error_log_level = get_option( 'user_error_log_level', 'warning' );
-		if ( is_callable( array( $logger->getLogger(), $user_error_log_level ) ) ) {
-			$logger->$user_error_log_level( $message );
-		} else {
-			$logger->warning( $message );
+			ob_start();
+			debug_print_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+			$backtrace = ob_get_clean();
+			$message   = sprintf( "%s in %s line %s\n%s", $errstr, $errfile, $errline, $backtrace );
+			$logger    = Logger::instance();
+
+			$user_error_log_level = get_option( 'user_error_log_level', 'warning' );
+			if ( is_callable( array( $logger->getLogger(), $user_error_log_level ) ) ) {
+				$logger->$user_error_log_level( $message );
+			} else {
+				$logger->warning( $message );
+			}
 		}
+		set_error_handler( 'ramphor_logger_error_trigger' );
 	}
-	set_error_handler( 'ramphor_logger_error_trigger' );
 
 	function ramphor_logger_register_logger( $logger, $id ) {
 		if ( ! defined( 'RAMPHOR_LOGGER_SLACK_HANDLER_ENABLE' ) ) {

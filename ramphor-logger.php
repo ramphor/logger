@@ -52,7 +52,7 @@ if (!class_exists(\WP_CLI::class)) {
 	}
 	set_exception_handler( 'ramphor_logger_exception_trigger' );
 
-	if (!defined('RAMPHOR_LOGGER_DISABLE_EXCEPTION_TRIGGER') || constant('RAMPHOR_LOGGER_DISABLE_EXCEPTION_TRIGGER') === false) {
+	if (!defined('RAMPHOR_LOGGER_DISABLE_ERROR_TRIGGER') || constant('RAMPHOR_LOGGER_DISABLE_ERROR_TRIGGER') === false) {
 		function ramphor_logger_error_trigger( $errno, $errstr, $errfile, $errline, $errcontext = array() ) {
 			$ignore_wp_core = apply_filters(
 				'ramphor_logger_ignore_wordpress_core_warning',

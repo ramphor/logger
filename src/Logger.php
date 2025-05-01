@@ -76,7 +76,7 @@ final class Logger
             apply_filters('ramphor_logger_default_stream_path', $syslog),
             Monolog::DEBUG
         );
-        $stdOutHandler = new StreamHandler('php://stdout', Monolog::DEBUG);
+        $stdOutHandler = new StreamHandler('php://stdout', Monolog::INFO);
 
         // Setup Monolog as default logger
         $log = new Monolog(strtoupper(static::LOGGER_ID));
